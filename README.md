@@ -41,9 +41,18 @@ This MCP server implements **110+ tools** covering ~90% of the [python-garmincon
 - ✅ High-Level Workout Builders (4 tools) - create and schedule workouts without writing JSON
 - ✅ Courses (3 tools) - list / upload GPX as course / delete course
 - ✅ Activity Analysis (2 tools) - FIT file parsing, Power Duration Curve; requires power meter and/or Di2
+- ✅ General FIT Data (1 tool) - lossless, paginated parsing for every activity type
 - ✅ Activity File Downloads (2 tools) - download activity files in FIT, GPX, TCX, or CSV format
 
 > **Note:** Activity Analysis tools require a compatible power meter (e.g., Garmin Rally, Favero Assioma, PowerTap P1) and/or Shimano Di2 / SRAM eTap electronic shifting. The `fitparse` dependency is installed automatically.
+
+> **General FIT Data** works for any activity type and has no power-meter or electronic-shifting requirement.
+
+### General FIT Data
+
+Use **`get_activity_fit_messages(activity_id, message_types=None, include_records=false, message_offset=0, message_limit=1000)`** as the source-of-truth endpoint for original device activity data. It downloads Garmin's original FIT file and returns every message and field decoded by `fitparse`, including unknown fields, raw values, units, field definition numbers, profile labels, and global message numbers when available. Garmin Connect edits made after upload may be stored only in Garmin's service and are not necessarily written back into the original FIT file; this tool intentionally does not merge them.
+
+The high-frequency `record` stream is inventoried but omitted by default. Any other type occurring more than 100 times is also inventoried but omitted from an unfiltered default response. Request those types explicitly with `message_types`; all selected results are paged with `message_offset`, `message_limit`, and `pagination.next_offset` (maximum 5,000 messages per call). Use `message_types` to retrieve a focused subset such as `set` and `exercise_title` for a strength workout while `message_counts` still reports the complete FIT contents.
 
 ### Activity File Downloads
 
